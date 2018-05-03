@@ -1,68 +1,129 @@
 import React, { Component } from 'react'; 
+import Screen from './components/screen';
+import Button from './components/button';
 import './App.css';
 
 class App extends Component {
+
   constructor(){
     super();
-
     this.state = {
-      currentNumber: "0",
-      currentOp: ""
+      total: null,
+      current: null,
+      dotPressed: false,
+      op: null
     }
   }
 
-  handleNumberClick(n) {
-    this.setState({currentNumber: n})
+  handleClick(key) {
+
+    let operations = {
+      "PM" : (a) => -a,
+      "%" : (a, b) => a % b,
+      "/" : (a, b) => a / b,
+      "*" : (a, b) => a * b,
+      "-" : (a, b) => a - b,
+      "+" : (a, b) => a + b,
+    }
+
+    let {current, total, dotPressed, op} = this.state;  
+
+    switch (key) {
+      case "AC":
+        this.setState({
+          current: null,
+          total: null,
+          dotPressed: false,
+          op: null
+        });
+        break;
+
+      case "PM":
+        this.setState({current: operations[key](current)});
+        break;
+
+      case ".":
+        this.setState({dotPressed: true});
+        break;
+
+      case "=":
+        if(op !== null) {
+          let ans = operations[op](total, current)
+          this.setState({current: ans, total: null, op: null});
+        }
+        this.setState({current: operations[op](total, current)});
+        break;
+
+      case "%":
+      case "/":
+      case "*":
+      case "-":
+      case "+":
+        if(current === null) current = 0;
+        if(op === null) this.setState({op: key, total: current, current: null});
+        else {
+          let ans = operations[op](total, current);
+          this.setState({op: key, total: ans, current: null});
+        }
+        break;
+        
+      default:
+        if(current === null) 
+          this.setState({current: parseInt(key, 10)});
+        else {
+          if(dotPressed) {
+            this.setState({
+              current: current + "." + key,
+              dotPressed: false
+            });
+          } else this.setState({current: current + key});
+        }
+        break;
+    }
   }
-
-
 
   render() {
     return (
-      <div className="App" style={{paddingTop: "5px"}}>
-        <div id="display" className="col-lg-3 clearfix" style={{margin: "auto", border: "1px solid black"}}>
-          <h2 style={{float: "right"}}>{this.state.currentNumber}</h2>
-        </div>
+      <div className="App">
+          <div className="calc-frame col-lg-3">
+            <Screen>
+              {this.state.current}
+            </Screen>
 
-        <div className="col-lg-3" style={{margin: "10px auto"}}>
-          <div className="row buttonpad">
-            <button className="col-lg-2 col-md-2 col-sm-2 button">%</button>
-            <button className="col-lg-2 col-md-2 col-sm-2 button">sqrt</button>
-            <button className="col-lg-2 col-md-2 col-sm-2 button">x^2</button>
-            <button className="col-lg-2 col-md-2 col-sm-2 button">1/x</button>
+            <div className="row">
+              <Button handleClick={this.handleClick.bind(this, "AC")} bgColor="#a0a0a7" val="AC"/>
+              <Button handleClick={this.handleClick.bind(this, "PM")} bgColor="#a0a0a7" val="±" />
+              <Button handleClick={this.handleClick.bind(this, "%")} bgColor="#a0a0a7" val="%" />
+              <Button handleClick={this.handleClick.bind(this, "/")} bgColor="#fc9c17" val="÷" />
+            </div>
+    
+            <div className="row">
+              <Button handleClick={this.handleClick.bind(this, "7")} bgColor="#e0e0e7" val="7"/>
+              <Button handleClick={this.handleClick.bind(this, "8")} bgColor="#e0e0e7" val="8" />
+              <Button handleClick={this.handleClick.bind(this, "9")} bgColor="#e0e0e7" val="9" />
+              <Button handleClick={this.handleClick.bind(this, "*")} bgColor="#fc9c17" val="X" />
+            </div>
+
+            <div className="row">
+              <Button handleClick={this.handleClick.bind(this, "4")} bgColor="#e0e0e7" val="4"/>
+              <Button handleClick={this.handleClick.bind(this, "5")} bgColor="#e0e0e7" val="5" />
+              <Button handleClick={this.handleClick.bind(this, "6")} bgColor="#e0e0e7" val="6" />
+              <Button handleClick={this.handleClick.bind(this, "-")} bgColor="#fc9c17" val="-" />
+            </div>
+
+            <div className="row">
+              <Button handleClick={this.handleClick.bind(this, "1")} bgColor="#e0e0e7" val="1"/>
+              <Button handleClick={this.handleClick.bind(this, "2")} bgColor="#e0e0e7" val="2" />
+              <Button handleClick={this.handleClick.bind(this, "3")} bgColor="#e0e0e7" val="3" />
+              <Button handleClick={this.handleClick.bind(this, "+")} bgColor="#fc9c17" val="+" />
+            </div>
+
+            <div className="row">
+              <Button handleClick={this.handleClick.bind(this, "0")} bgColor="#e0e0e7" expanded val="0"/>
+              <Button handleClick={this.handleClick.bind(this, ".")} bgColor="#e0e0e7" val="." />
+              <Button handleClick={this.handleClick.bind(this, "=")} bgColor="#fc9c17" val="=" />
+            </div>
           </div>
-          <div className="row buttonpad">
-            <button className="col-lg-2 col-md-2 col-sm-2 button">CE</button>
-            <button onClick={()=>this.setState({currentNumber: "0"})} className="col-lg-2 col-md-2 col-sm-2 button">C</button>
-            <button className="col-lg-2 col-md-2 col-sm-2 button">←</button>
-            <button className="col-lg-2 col-md-2 col-sm-2 button">/</button>
-          </div>
-          <div className="row buttonpad">
-            <button onClick={this.handleNumberClick.bind(this, 7)} className="col-lg-2 col-md-2 col-sm-2 button">7</button>
-            <button onClick={this.handleNumberClick.bind(this, 8)} className="col-lg-2 col-md-2 col-sm-2 button">8</button>
-            <button onClick={this.handleNumberClick.bind(this, 9)} className="col-lg-2 col-md-2 col-sm-2 button">9</button>
-            <button className="col-lg-2 col-md-2 col-sm-2 button">X</button>
-          </div>
-          <div className="row buttonpad">
-            <button onClick={this.handleNumberClick.bind(this, 4)} className="col-lg-2 col-md-2 col-sm-2 button">4</button>
-            <button onClick={this.handleNumberClick.bind(this, 5)} className="col-lg-2 col-md-2 col-sm-2 button">5</button>
-            <button onClick={this.handleNumberClick.bind(this, 6)} className="col-lg-2 col-md-2 col-sm-2 button">6</button>
-            <button className="col-lg-2 col-md-2 col-sm-2 button">-</button>
-          </div>
-          <div className="row buttonpad">
-            <button onClick={this.handleNumberClick.bind(this, 1)} className="col-lg-2 col-md-2 col-sm-2 button">1</button>
-            <button onClick={this.handleNumberClick.bind(this, 2)} className="col-lg-2 col-md-2 col-sm-2 button">2</button>
-            <button onClick={this.handleNumberClick.bind(this, 3)} className="col-lg-2 col-md-2 col-sm-2 button">3</button>
-            <button className="col-lg-2 col-md-2 col-sm-2 button">+</button>
-          </div>
-          <div className="row buttonpad">
-            <button className="col-lg-2 col-md-2 col-sm-2 button">+/-</button>
-            <button onClick={this.handleNumberClick.bind(this, 0)} className="col-lg-2 col-md-2 col-sm-2 button">0</button>
-            <button className="col-lg-2 col-md-2 col-sm-2 button">.</button>
-            <button className="col-lg-2 col-md-2 col-sm-2 button">=</button>
-          </div>
-        </div>
-        
       </div>
     );
   }

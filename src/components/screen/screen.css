@@ -1,0 +1,10 @@
+.calc-screen {
+	color: white;
+	justify-content: flex-end;
+	background-color: black;
+}
+
+.calc-number {
+	font: 100 5em 'Roboto';
+	padding-right: .5em;
+}

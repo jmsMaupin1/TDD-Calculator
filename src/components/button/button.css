@@ -1,0 +1,16 @@
+.button {
+	user-select: none;
+  cursor: pointer;
+  outline: none;
+	width: 80px;
+	height: 80px;
+	border-top: 1px solid #777;
+	border-right: 1px solid #666;  
+	text-align: center;
+	line-height: 80px;
+	font-size: 2em;
+}
+
+.button-operator {
+	/*remove border on the right side*/
+}
